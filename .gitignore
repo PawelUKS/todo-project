@@ -6,6 +6,12 @@ symfony-backend/.env.local
 symfony-backend/.env.*.local
 symfony-backend/public/build/
 symfony-backend/public/uploads/
+symfony-backend/node_modules/
+symfony-backend/public/build/
+symfony-backend/public/uploads/
+symfony-backend/.env.*
+symfony-backend/symfony.lock
+symfony-backend/composer.lock
 
 # React (JavaScript)
 react-frontend/node_modules/
@@ -13,6 +19,7 @@ react-frontend/build/
 react-frontend/.env
 react-frontend/.env.local
 react-frontend/.env.*.local
+react-frontend/.env.*
 
 # VS Code
 .vscode/
@@ -21,5 +28,25 @@ react-frontend/.env.*.local
 .vscode/launch.json
 
 # System-Dateien (Windows/macOS)
+.DS_Store
+Thumbs.db
+
+# Symfony spezifisch
+/vendor/
+/var/
+/node_modules/
+/public/build/
+/public/uploads/
+
+# Konfigurationsdateien
+.env
+.env.local
+.env.*
+symfony.lock
+composer.lock
+
+# IDE / OS spezifische Dateien
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db

@@ -1,0 +1,25 @@
+# Symfony (PHP)
+symfony-backend/vendor/
+symfony-backend/var/
+symfony-backend/.env
+symfony-backend/.env.local
+symfony-backend/.env.*.local
+symfony-backend/public/build/
+symfony-backend/public/uploads/
+
+# React (JavaScript)
+react-frontend/node_modules/
+react-frontend/build/
+react-frontend/.env
+react-frontend/.env.local
+react-frontend/.env.*.local
+
+# VS Code
+.vscode/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+
+# System-Dateien (Windows/macOS)
+.DS_Store
+Thumbs.db

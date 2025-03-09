@@ -23,3 +23,24 @@ react-frontend/.env.*.local
 # System-Dateien (Windows/macOS)
 .DS_Store
 Thumbs.db
+
+# Symfony spezifische Dateien, die ignoriert werden sollen
+symfony-backend/var/
+symfony-backend/vendor/
+symfony-backend/.env
+symfony-backend/.env.local
+symfony-backend/.env.*.local
+symfony-backend/symfony.lock
+
+# Optional: IDE- und Betriebssystem-spezifische Dateien ignorieren
+.vscode/
+.idea/
+.DS_Store
+
+# Symfony Umgebungsdateien
+symfony-backend/.env
+symfony-backend/.env.*
+symfony-backend/composer.lock
+
+
+

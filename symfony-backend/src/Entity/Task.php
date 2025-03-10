@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 class Task
@@ -11,33 +12,38 @@ class Task
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    #[Groups(['task:read'])]
+    private int $id;
 
     #[ORM\Column(length: 36)]
-    private ?string $userId = null;
+    #[Groups(['task:read', 'task:write'])]
+    private string $userId;
 
     #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    #[Groups(['task:read', 'task:write'])]
+    private string $title;
+
+    #[ORM\Column(options: ["default" => false])]
+    #[Groups(['task:read', 'task:write'])]
+    private bool $isCompleted = false;
 
     #[ORM\Column]
-    private ?bool $isCompleted = null;
+    #[Groups(['task:read'])]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    public function __construct(string $userId, string $title)
+    {
+        $this->userId = $userId;
+        $this->title = $title;
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function getUserId(): ?string
+    public function getUserId(): string
     {
         return $this->userId;
     }
@@ -45,11 +51,10 @@ class Task
     public function setUserId(string $userId): static
     {
         $this->userId = $userId;
-
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -57,11 +62,10 @@ class Task
     public function setTitle(string $title): static
     {
         $this->title = $title;
-
         return $this;
     }
 
-    public function isCompleted(): ?bool
+    public function isCompleted(): bool
     {
         return $this->isCompleted;
     }
@@ -69,11 +73,10 @@ class Task
     public function setIsCompleted(bool $isCompleted): static
     {
         $this->isCompleted = $isCompleted;
-
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -81,7 +84,6 @@ class Task
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 }

@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y libzip-dev unzip && docker-php-ext-inst
 WORKDIR /var/www/html/symfony-backend
 
 # Kopiere nur die composer.json und composer.lock, um den Cache zu optimieren
-COPY symfony-backend/composer.json symfony-backend/composer.lock ./
+COPY composer.json composer.lock ./
+
 
 # Installiere die Abhängigkeiten
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

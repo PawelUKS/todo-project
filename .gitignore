@@ -10,7 +10,7 @@ symfony-backend/public/bundles/
 symfony-backend/node_modules/
 symfony-backend/.env.*
 symfony-backend/symfony.lock
-symfony-backend/composer.lock
+# symfony-backend/composer.lock
 symfony-backend/var/cache/
 symfony-backend/var/log/
 symfony-backend/config/packages/old/

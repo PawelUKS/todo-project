@@ -6,6 +6,22 @@ Dieses Projekt ist eine **Fullstack-Web-Applikation**, die ein **Symfony-Backend
 
 ---
 
+<div style="margin-bottom: 35px;"></div>
+
+![Tasks hinzufügen](screenshots/add.png)
+
+*Tasks hinzufügen*
+<div style="margin-bottom: 35px;"></div>
+
+![Tasks als erdedigt markieren](screenshots/isCompleted.png)
+
+*Tasks als erledigt markieren*
+
+
+
+
+---
+
 ## Technologie-Stack
 
 - **Backend:** Symfony 7 mit Doctrine ORM
@@ -103,5 +119,23 @@ Das React-Frontend kommuniziert mit der API über fetch(), wobei folgende Method
 - **Drag & Drop** für Sortierung der Tasks
 
 ---
+<div style="margin-bottom: 20px;"></div>
 
 **Dieses Projekt ist eine voll funktionsfähige To-Do-App mit Symfony & React, die einfach erweitert werden kann.** 
+<div style="margin-bottom: 20px;"></div>
+
+---
+<div style="margin-bottom: 20px;"></div>
+
+# **Lizenz & Autor**
+
+### **MIT-Lizenz**
+Dieses Projekt ist unter der **MIT-Lizenz** lizenziert. Weitere Informationen finden Sie in der `LICENSE`-Datei.
+
+
+### **Kontakt**
+- **Autor:** Pawel Sala  
+- **E-Mail:** [pawel.sala@web.de](mailto:pawel.sala@web.de)  
+- **GitHub:** [PawelUKS](https://github.com/PawelUKS)  
+
+Bei Fragen, Problemen oder Verbesserungsvorschlägen können Sie mich gerne kontaktieren oder ein Issue im GitHub-Repository erstellen.

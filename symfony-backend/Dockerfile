@@ -1,31 +1,21 @@
 # Verwende das offizielle PHP-Image mit Apache
 FROM php:8.2-apache
 
-# Installiere benötigte Systempakete
-RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git curl \
-    && docker-php-ext-install zip pdo pdo_mysql
-
-# Installiere Symfony CLI
-RUN curl -sS https://get.symfony.com/cli/installer | bash && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+# Installiere PHP-Erweiterungen und Composer
+RUN apt-get update && apt-get install -y libzip-dev unzip && docker-php-ext-install zip pdo pdo_mysql
 
 # Setze das Arbeitsverzeichnis auf den Symfony-Ordner
-WORKDIR /var/www/html/symfony-backend
+WORKDIR /var/www/html
 
-# Kopiere nur composer.json & composer.lock, um Cache zu optimieren
-COPY composer.json composer.lock ./
+# Kopiere NUR composer.json und composer.lock zuerst (für Caching)
+COPY composer.json composer.lock ./symfony-backend/
 
 # Installiere Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader --working-dir=symfony-backend
 
-# Installiere Abhängigkeiten (als www-data, um Root-Probleme zu vermeiden)
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
-
-# Kopiere alle restlichen Dateien
-COPY symfony-backend/ ./
-
-# 🔥 **WICHTIG: Erstelle fehlende Verzeichnisse manuell**
-RUN mkdir -p var/cache var/log
+# Danach alle restlichen Dateien kopieren
+COPY . ./ 
 
 # Setze Dateiberechtigungen
 RUN chown -R www-data:www-data /var/www/html/symfony-backend && chmod -R 775 /var/www/html/symfony-backend/var

@@ -24,6 +24,9 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-
 # Kopiere alle restlichen Dateien
 COPY symfony-backend/ ./
 
+# 🔥 **WICHTIG: Erstelle fehlende Verzeichnisse manuell**
+RUN mkdir -p var/cache var/log
+
 # Setze Dateiberechtigungen
 RUN chown -R www-data:www-data /var/www/html/symfony-backend && chmod -R 775 /var/www/html/symfony-backend/var
 

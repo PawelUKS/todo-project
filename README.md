@@ -130,7 +130,7 @@ Das React-Frontend kommuniziert mit der API über fetch(), wobei folgende Method
 # **Lizenz & Autor**
 
 ### **MIT-Lizenz**
-Dieses Projekt ist unter der **MIT-Lizenz** lizenziert. Weitere Informationen finden Sie in der `LICENSE`-Datei.
+Dieses Projekt ist unter der **MIT-Lizenz** lizenziert. Weitere Informationen finden Sie in der [LICENSE](LICENSE.md)-Datei.
 
 
 ### **Kontakt**

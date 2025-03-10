@@ -48,7 +48,7 @@ Thumbs.db
 .env.local
 .env.*
 symfony.lock
-composer.lock
+# composer.lock
 
 # IDE / OS spezifische Dateien
 .idea/

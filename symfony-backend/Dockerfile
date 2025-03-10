@@ -5,7 +5,9 @@ FROM php:8.2-apache
 RUN apt-get update && apt-get install -y libzip-dev unzip && docker-php-ext-install zip pdo pdo_mysql
 
 # Setze das Arbeitsverzeichnis
-WORKDIR /var/www/html
+WORKDIR /var/www/html/symfony-backend
+
+
 
 # Kopiere das Projekt in den Container
 COPY . .

@@ -1,149 +1,138 @@
-import React, { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const API_URL = "http://localhost:8000/api/tasks";
 
-const App = () => {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState("");
-  const [userId, setUserId] = useState("");
+function App() {
+    const [tasks, setTasks] = useState([]);
+    const [inputValue, setInputValue] = useState("");
+    const [editTaskId, setEditTaskId] = useState(null); // Speichert die ID des bearbeiteten Tasks
 
-  // UUID aus localStorage holen oder neue generieren
-  useEffect(() => {
-    let storedUserId = localStorage.getItem("userId");
-    if (!storedUserId) {
-      storedUserId = uuidv4();
-      localStorage.setItem("userId", storedUserId);
-    }
-    setUserId(storedUserId);
-    fetchTasks(storedUserId);
-  }, []);
-
-  // Aufgaben aus dem Backend abrufen
-  const fetchTasks = async (user) => {
-    try {
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      const userTasks = data.filter((task) => task.userId === user);
-      setTasks(userTasks);
-    } catch (error) {
-      console.error("Fehler beim Laden der Tasks:", error);
-    }
-  };
-
-  // Neue Aufgabe hinzufügen
-  const addTask = async () => {
-    if (!newTask.trim()) return;
-    const taskData = {
-      userId: userId,
-      title: newTask,
-      isCompleted: false,
+    // User-UUID aus LocalStorage holen oder generieren
+    const getUserUUID = () => {
+        let uuid = localStorage.getItem("userUUID");
+        if (!uuid) {
+            uuid = crypto.randomUUID();
+            localStorage.setItem("userUUID", uuid);
+        }
+        return uuid;
     };
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taskData),
-      });
-      if (response.ok) {
-        setNewTask("");
-        fetchTasks(userId);
-      }
-    } catch (error) {
-      console.error("Fehler beim Hinzufügen des Tasks:", error);
-    }
-  };
 
-  // Aufgabe aktualisieren (z.B. als erledigt markieren)
-  const updateTask = async (id, updatedData) => {
-    try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
-      if (response.ok) {
-        fetchTasks(userId);
-      }
-    } catch (error) {
-      console.error("Fehler beim Aktualisieren des Tasks:", error);
-    }
-  };
+    const userUUID = getUserUUID();
 
-  // Aufgabe löschen
-  const deleteTask = async (id) => {
-    try {
-      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (response.ok) {
-        fetchTasks(userId);
-      }
-    } catch (error) {
-      console.error("Fehler beim Löschen des Tasks:", error);
-    }
-  };
+    // Alle Tasks von der API abrufen
+    useEffect(() => {
+        fetch(API_URL)
+            .then((res) => res.json())
+            .then((data) => {
+                // Nur Tasks anzeigen, die zur aktuellen UUID gehören
+                const userTasks = data.filter(task => task.userId === userUUID);
+                setTasks(userTasks);
+            })
+            .catch((err) => console.error("Fehler beim Laden:", err));
+    }, []);
 
-  // Alle Aufgaben löschen
-  const deleteAllTasks = async () => {
-    try {
-      const response = await fetch(`${API_URL}/delete/all`, { method: "DELETE" });
-      if (response.ok) {
-        setTasks([]);
-      }
-    } catch (error) {
-      console.error("Fehler beim Löschen aller Tasks:", error);
-    }
-  };
+    // Task hinzufügen oder bearbeiten
+    const handleTaskSubmit = () => {
+        if (!inputValue.trim()) return;
 
-  return (
-    <div className="container mt-5">
-      <h1 className="text-center mb-4">Meine To-Do-App</h1>
+        if (editTaskId) {
+            // Bearbeiten (PUT)
+            fetch(`${API_URL}/${editTaskId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: inputValue })
+            })
+                .then((res) => res.json())
+                .then(() => {
+                    setTasks(tasks.map(task =>
+                        task.id === editTaskId ? { ...task, title: inputValue } : task
+                    ));
+                    setEditTaskId(null);
+                    setInputValue("");
+                });
+        } else {
+            // Hinzufügen (POST)
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: userUUID, title: inputValue })
+            })
+                .then((res) => res.json())
+                .then((newTask) => {
+                    setTasks([...tasks, newTask]);
+                    setInputValue("");
+                });
+        }
+    };
 
-      <div className="input-group mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Neue Aufgabe..."
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-        />
-        <button className="btn btn-primary" onClick={addTask}>
-          Hinzufügen
-        </button>
-      </div>
+    // Task als erledigt markieren
+    const toggleTaskCompletion = (id, isCompleted) => {
+        fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isCompleted: !isCompleted })
+        })
+            .then((res) => res.json())
+            .then(() => {
+                setTasks(tasks.map(task =>
+                    task.id === id ? { ...task, isCompleted: !isCompleted } : task
+                ));
+            });
+    };
 
-      {tasks.length > 0 ? (
-        <ul className="list-group">
-          {tasks.map((task) => (
-            <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center">
-              <span style={{ textDecoration: task.isCompleted ? "line-through" : "none" }}>
-                {task.title}
-              </span>
-              <div>
-                <button
-                  className="btn btn-success btn-sm me-2"
-                  onClick={() => updateTask(task.id, { ...task, isCompleted: !task.isCompleted })}
-                >
-                  {task.isCompleted ? "⏪ Rückgängig" : "✔ Erledigt"}
+    // Task bearbeiten (Text ins Eingabefeld setzen)
+    const handleEditTask = (task) => {
+        setEditTaskId(task.id);
+        setInputValue(task.title);
+    };
+
+    // Task löschen
+    const handleDeleteTask = (id) => {
+        fetch(`${API_URL}/${id}`, { method: "DELETE" })
+            .then(() => {
+                setTasks(tasks.filter(task => task.id !== id));
+            });
+    };
+
+    return (
+        <div className="container mt-5">
+            <h2 className="text-center mb-4">Meine To-Do-App</h2>
+            <div className="d-flex mb-3">
+                <input
+                    type="text"
+                    className="form-control me-2"
+                    placeholder="Neuer Task..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                />
+                <button className="btn btn-success" onClick={handleTaskSubmit}>
+                    {editTaskId ? "Speichern" : "Hinzufügen"}
                 </button>
-                <button className="btn btn-danger btn-sm" onClick={() => deleteTask(task.id)}>
-                  ❌ Löschen
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-center mt-3">Noch keine Aufgaben vorhanden.</p>
-      )}
-
-      {tasks.length > 0 && (
-        <button className="btn btn-danger mt-3 w-100" onClick={deleteAllTasks}>
-          Alle löschen
-        </button>
-      )}
-    </div>
-  );
-};
+            </div>
+            <ul className="list-group">
+                {tasks.map((task) => (
+                    <li key={task.id} className={`list-group-item d-flex justify-content-between align-items-center ${task.isCompleted ? "bg-success text-white" : ""}`}>
+                        <div>
+                            <input
+                                type="checkbox"
+                                className="form-check-input me-2"
+                                checked={task.isCompleted}
+                                onChange={() => toggleTaskCompletion(task.id, task.isCompleted)}
+                            />
+                            {task.title}
+                        </div>
+                        <div>
+                            {!task.isCompleted && (
+                                <button className="btn btn-warning btn-sm me-2" onClick={() => handleEditTask(task)}>Bearbeiten</button>
+                            )}
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDeleteTask(task.id)}>Löschen</button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
 
 export default App;

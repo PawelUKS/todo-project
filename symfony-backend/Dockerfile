@@ -13,7 +13,7 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash && mv /root/.symfony*/
 WORKDIR /var/www/html/symfony-backend
 
 # Kopiere nur composer.json & composer.lock, um Cache zu optimieren
-COPY symfony-backend/composer.json symfony-backend/composer.lock ./
+COPY composer.json composer.lock ./
 
 # Installiere Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

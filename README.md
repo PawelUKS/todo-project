@@ -26,7 +26,7 @@ Dieses Projekt ist eine **Fullstack-Web-Applikation**, die ein **Symfony-Backend
 
 - **Backend:** Symfony 7 mit Doctrine ORM
 - **Frontend:** React mit Bootstrap
-- **Datenbank:** MySQL (Online-Datenbank-Anbieter)
+- **Datenbank:** MySQL ([https://www.freesqldatabase.com](https://www.freesqldatabase.com/))
 - **API-Schnittstelle:** REST-API mit CRUD-Operationen
 
 ---
@@ -68,7 +68,13 @@ Symfony stellt eine REST-API bereit, die CRUD-Operationen (Create, Read, Update,
 | `POST`  | `/api/tasks`       | Einen neuen Task erstellen          |
 | `PUT`   | `/api/tasks/{id}`  | Einen bestehenden Task bearbeiten   |
 | `DELETE`| `/api/tasks/{id}`  | Einen Task löschen                  |
+| `GET`   | `/api/tasks/generate-uuid`       | Eine UUID für den Benutzer generieren abrufen |
 
+
+- UUID-Validierung im Backend:
+Die API validiert nun direkt, ob eine UUID korrekt ist. Nur Aufgaben mit einer gültigen UUID werden abgerufen oder geändert.
+- UUID-Generierung im Backend:
+Falls React keine UUID findet, kann eine neue über die API generiert werden (/api/tasks/generate-uuid).
 - Nur der Besitzer (UUID) sieht seine eigenen Tasks.
 - Erledigte Tasks können nicht mehr bearbeitet werden, außer man setzt sie zurück auf "unerledigt".
 - Löschen ist immer möglich.
@@ -89,7 +95,7 @@ Das Frontend wurde mit **React** entwickelt und nutzt **Bootstrap** für das Sty
 
 ---
 
-## Automatische Benutzer-Identifikation (UUID)
+## Automatische Benutzer-Identifikation (UUID) durch Symfony
 
 Beim ersten Besuch der Seite wird eine **UUID im Local Storage** des Browsers gespeichert.  
 Diese UUID wird bei jeder API-Anfrage mitgesendet, sodass Benutzer nur ihre eigenen Aufgaben sehen und bearbeiten können.
@@ -112,6 +118,7 @@ Das React-Frontend kommuniziert mit der API über fetch(), wobei folgende Method
 - API ist **voll funktionsfähig** (CRUD-Operationen)
 - React-Frontend ist mit der API **verbunden**
 - **Nur eigene Tasks sind sichtbar**, dank UUID
+- UUID wird nun vom **Backend** verwaltet und validiert
 
 💡 **Mögliche Erweiterungen:**
 - **Login-System** (Google, Facebook, E-Mail)

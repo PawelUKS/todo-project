@@ -2,34 +2,34 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const API_URL = "http://localhost:8000/api/tasks";
+const UUID_URL = "http://localhost:8000/api/tasks/generate-uuid"; // Korrigierte API-Route
 
 function App() {
     const [tasks, setTasks] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const [editTaskId, setEditTaskId] = useState(null); // Speichert die ID des bearbeiteten Tasks
+    const [editTaskId, setEditTaskId] = useState(null);
+    const [userUUID, setUserUUID] = useState("");
 
-    // User-UUID aus LocalStorage holen oder generieren
-    const getUserUUID = () => {
+    // UUID aus Backend holen, falls nicht vorhanden
+    const getUserUUID = async () => {
         let uuid = localStorage.getItem("userUUID");
         if (!uuid) {
-            uuid = crypto.randomUUID();
+            const response = await fetch(UUID_URL);
+            const data = await response.json();
+            uuid = data.uuid;
             localStorage.setItem("userUUID", uuid);
         }
         return uuid;
     };
 
-    const userUUID = getUserUUID();
-
-    // Alle Tasks von der API abrufen
     useEffect(() => {
-        fetch(API_URL)
-            .then((res) => res.json())
-            .then((data) => {
-                // Nur Tasks anzeigen, die zur aktuellen UUID gehören
-                const userTasks = data.filter(task => task.userId === userUUID);
-                setTasks(userTasks);
-            })
-            .catch((err) => console.error("Fehler beim Laden:", err));
+        getUserUUID().then(uuid => {
+            setUserUUID(uuid);
+            fetch(`${API_URL}?userUuid=${uuid}`)
+                .then((res) => res.json())
+                .then((data) => setTasks(data))
+                .catch((err) => console.error("Fehler beim Laden:", err));
+        });
     }, []);
 
     // Task hinzufügen oder bearbeiten
@@ -43,7 +43,6 @@ function App() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title: inputValue })
             })
-                .then((res) => res.json())
                 .then(() => {
                     setTasks(tasks.map(task =>
                         task.id === editTaskId ? { ...task, title: inputValue } : task
@@ -114,6 +113,7 @@ function App() {
                 {tasks.map((task) => (
                     <li key={task.id} className={`list-group-item d-flex justify-content-between align-items-center ${task.isCompleted ? "bg-success text-white" : ""}`}>
                         <div>
+                            {/* Checkbox für Erledigt */}
                             <input
                                 type="checkbox"
                                 className="form-check-input me-2"
@@ -123,9 +123,11 @@ function App() {
                             {task.title}
                         </div>
                         <div>
+                            {/* Bearbeiten-Button (nur wenn Task nicht erledigt ist) */}
                             {!task.isCompleted && (
                                 <button className="btn btn-warning btn-sm me-2" onClick={() => handleEditTask(task)}>Bearbeiten</button>
                             )}
+                            {/* Löschen-Button immer sichtbar */}
                             <button className="btn btn-danger btn-sm" onClick={() => handleDeleteTask(task.id)}>Löschen</button>
                         </div>
                     </li>

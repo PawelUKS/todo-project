@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\UserService;
 use App\Entity\Task;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,10 +14,23 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[Route('/api/tasks', name: 'api_tasks_')]
 class TaskController extends AbstractController
 {
-    #[Route('', name: 'list', methods: ['GET'])]
-    public function list(EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/generate-uuid', name: 'generate_uuid', methods: ['GET'])]
+    public function generateUuid(UserService $UserService): JsonResponse
     {
-        $tasks = $entityManager->getRepository(Task::class)->findAll();
+        $uuid = $UserService->generateUuid();
+        return $this->json(['uuid' => $uuid]);
+    }
+
+    #[Route('', name: 'list', methods: ['GET'])]
+    public function list(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $userUuid = $request->query->get('userUuid');
+
+        if (!$userUuid) {
+            return $this->json(['error' => 'Missing user UUID'], 400);
+        }
+
+        $tasks = $entityManager->getRepository(Task::class)->findBy(['userId' => $userUuid]);
 
         $data = array_map(fn(Task $task) => [
             'id' => $task->getId(),
@@ -29,8 +43,6 @@ class TaskController extends AbstractController
         return $this->json($data, 200, [], ['json_encode_options' => JSON_PRETTY_PRINT]);
     }
 
-    
-    
     #[Route('', name: 'create_task', methods: ['POST'])]
     public function createTask(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
     {
@@ -60,6 +72,10 @@ class TaskController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
+        if (!isset($data['title']) && !isset($data['isCompleted'])) {
+            return $this->json(['error' => 'Nothing to update'], 400);
+        }
+
         if (isset($data['title'])) {
             $task->setTitle($data['title']);
         }
@@ -74,7 +90,6 @@ class TaskController extends AbstractController
 
         return new JsonResponse($json, 200, [], true);
     }
-
 
     #[Route('/{id}', name: 'delete_task', methods: ['DELETE'])]
     public function deleteTask(int $id, EntityManagerInterface $entityManager): JsonResponse
@@ -94,16 +109,8 @@ class TaskController extends AbstractController
     #[Route('/delete/all', name: 'delete_all_tasks', methods: ['DELETE'])]
     public function deleteAllTasks(EntityManagerInterface $entityManager): JsonResponse
     {
-        $tasks = $entityManager->getRepository(Task::class)->findAll();
-
-        if (empty($tasks)) {
-            return $this->json(['error' => 'No tasks found'], 404);
-        }
-
-        foreach ($tasks as $task) {
-            $entityManager->remove($task);
-        }
-        $entityManager->flush();
+        $connection = $entityManager->getConnection();
+        $connection->executeStatement('DELETE FROM task');
 
         return $this->json(['message' => 'All tasks deleted successfully']);
     }
